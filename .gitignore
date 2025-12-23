@@ -1,0 +1,93 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-debug.log
+
+# Env files and secrets
+.env
+.env.*.local
+.env.local
+
+# Logs
+logs/
+*.log
+debug.log*
+
+# Build / output
+dist/
+build/
+coverage/
+.cache/
+*.tgz
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Runtime files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Misc
+*.sqlite
+*.db
+.Dockerfile.*
+```# filepath: c:\EKVAYU\cypher_sentinel\.gitignore
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-debug.log
+
+# Env files and secrets
+.env
+.env.*.local
+.env.local
+
+# Logs
+logs/
+*.log
+debug.log*
+
+# Build / output
+dist/
+build/
+coverage/
+.cache/
+*.tgz
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Runtime files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Misc
+*.sqlite
+*.db
+.Dockerfile.*
