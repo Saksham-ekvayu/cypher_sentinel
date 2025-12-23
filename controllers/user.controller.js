@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
-const crypto = require("crypto");
 const User = require("../models/user.model");
+const { generateTempPassword } = require("../helpers/helper");
 
 // Create user by admin
 const createUserByAdmin = async (req, res) => {
@@ -28,8 +28,8 @@ const createUserByAdmin = async (req, res) => {
       }
     }
 
-    // generate temporary password
-    const tempPassword = crypto.randomBytes(8).toString("hex");
+    // generate temporary password that satisfies validators
+    const tempPassword = generateTempPassword(12);
 
     const newUser = new User({
       name,
