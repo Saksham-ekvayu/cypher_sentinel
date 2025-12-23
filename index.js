@@ -1,6 +1,7 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const { bgRed, bgYellow, bgBlue, bgMagenta } = require("colorette");
 const dotenv = require("dotenv");
+const { connectDB, disconnectDB } = require("./database/database");
 
 dotenv.config();
 
@@ -16,28 +17,28 @@ let server;
 
 async function start() {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
+    await connectDB(MONGODB_URI);
+    console.log(bgMagenta("Connected to MongoDB"));
 
     server = app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
+      console.log(bgBlue(`Server listening on port ${PORT}`));
     });
   } catch (err) {
-    console.error("Failed to start app:", err);
+    console.error(bgRed("Failed to start app:"), err);
     process.exit(1);
   }
 }
 
 function gracefulShutdown() {
-  console.log("Shutting down...");
+  console.log(bgYellow("Shutting down..."));
   Promise.resolve()
-    .then(() => mongoose.disconnect())
+    .then(() => disconnectDB())
     .then(() => {
       if (server) server.close(() => process.exit(0));
       else process.exit(0);
     })
     .catch((err) => {
-      console.error("Error during shutdown", err);
+      console.error(bgRed("Error during shutdown"), err);
       process.exit(1);
     });
 }
