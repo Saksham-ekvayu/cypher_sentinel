@@ -15,6 +15,78 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
+const createUserValidation = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Name must be between 2 and 50 characters")
+    .matches(/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/)
+    .withMessage(
+      "Name can only contain letters, spaces, hyphens, and apostrophes"
+    ),
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Please enter a valid email, Ex: john@gmail.com"),
+  body("role")
+    .trim()
+    .notEmpty()
+    .withMessage("Role is required")
+    .isIn(["admin", "expert", "user"])
+    .withMessage("Role must be one of: admin, expert, user"),
+  body("phone")
+    .trim()
+    .notEmpty()
+    .withMessage("Phone number is required")
+    .custom((value) => {
+      const cleanPhone = value.replace(/[\s\-\(\)\+]/g, "");
+
+      // Only digits
+      if (!/^\d+$/.test(cleanPhone)) {
+        throw new Error("Phone number must contain only digits");
+      }
+
+      // Length check
+      if (cleanPhone.length < 10 || cleanPhone.length > 15) {
+        throw new Error("Phone number must be between 10 and 15 digits");
+      }
+
+      // All same digits
+      if (/^(\d)\1+$/.test(cleanPhone)) {
+        throw new Error("Phone number cannot contain repeated digits");
+      }
+
+      // Sequential digits
+      const isSequential = (str) => {
+        for (let i = 0; i < str.length - 1; i++) {
+          if (Number(str[i + 1]) !== Number(str[i]) + 1) {
+            return false;
+          }
+        }
+        return true;
+      };
+
+      if (isSequential(cleanPhone)) {
+        throw new Error("Phone number cannot be sequential digits");
+      }
+
+      // Leading zero
+      if (cleanPhone.startsWith("0")) {
+        throw new Error("Phone number cannot start with 0");
+      }
+
+      return true;
+    })
+    .customSanitizer((value) => {
+      return value.replace(/[\s\-\(\)\+]/g, "");
+    }),
+  handleValidationErrors,
+];
+
 const registerValidation = [
   body("name")
     .trim()
@@ -252,4 +324,5 @@ module.exports = {
   resetPasswordValidation,
   resendOtpValidation,
   handleValidationErrors,
+  createUserValidation,
 };
