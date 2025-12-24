@@ -931,6 +931,10 @@
             const authBadge = authRequired ? '<span class="auth-badge">Auth Required</span>' : '';
             const uniqueId = api.path.replace(/[^a-zA-Z0-9]/g, '') + method;
 
+            // Create full URL with base URL
+            const baseUrl = window.location.origin;
+            const fullUrl = `${baseUrl}${api.path}`;
+
             // Create sample request body based on API data or intelligent defaults
             let sampleBody = {};
 
@@ -992,9 +996,8 @@
                 }
             }
 
-            // Create cURL command
-            const baseUrl = window.location.origin;
-            let curlCommand = `curl -X ${method} ${baseUrl}${api.path}`;
+            // Create cURL command with full URL
+            let curlCommand = `curl -X ${method} ${fullUrl}`;
 
             if (api.headers) {
                 Object.entries(api.headers).forEach(([key, value]) => {
@@ -1010,10 +1013,10 @@
                 <div class="api-row" onclick="toggleRow(this)">
                     <div class="row-main">
                         <div class="method-badge method-${method}">${method}</div>
-                        <div class="endpoint">${api.path}</div>
+                        <div class="endpoint">${fullUrl}</div>
                         <div>${authBadge}</div>
                         <div>
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyEndpoint('${api.path}', this)">
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyEndpoint('${fullUrl}', this)">
                                 Copy
                             </button>
                         </div>
@@ -1114,9 +1117,9 @@
             }).join('');
         }
 
-        // Copy endpoint function
-        async function copyEndpoint(path, button) {
-            const success = await copyToClipboard(path);
+        // Copy endpoint function - now copies full URL
+        async function copyEndpoint(fullUrl, button) {
+            const success = await copyToClipboard(fullUrl);
             showCopyFeedback(button, success);
         }
 
@@ -1206,8 +1209,9 @@
             // Get global token from localStorage
             const authToken = localStorage.getItem('apiDashboardToken') || '';
 
-            // Build the actual URL with parameters
-            let actualUrl = path;
+            // Build the actual URL with parameters - use full URL with base
+            const baseUrl = window.location.origin;
+            let actualUrl = path.startsWith('http') ? path : `${baseUrl}${path}`;
 
             // Replace URL parameters (e.g., :id with actual values)
             const paramMatches = path.match(/:(\w+)/g);
