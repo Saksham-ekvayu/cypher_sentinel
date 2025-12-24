@@ -290,7 +290,7 @@ const extractRequestBodyFromController = (routePath, method) => {
       return null;
     }
 
-    // Extract req.body destructuring patterns
+    // Extract req.body destructuring patterns with better parsing
     const destructuringPatterns = [
       /const\s*{\s*([^}]+)\s*}\s*=\s*req\.body/g,
       /{\s*([^}]+)\s*}\s*=\s*req\.body/g,
@@ -301,11 +301,45 @@ const extractRequestBodyFromController = (routePath, method) => {
     for (const pattern of destructuringPatterns) {
       let match;
       while ((match = pattern.exec(functionBody)) !== null) {
-        const fields = match[1]
-          .split(",")
-          .map((field) => field.trim())
-          .filter((field) => field && !field.includes("//"));
+        const fieldsString = match[1];
+        console.log(`🔍 Raw destructuring match: "${fieldsString}"`);
 
+        // Split by comma and clean each field
+        const fields = fieldsString
+          .split(",")
+          .map((field) => {
+            // Remove whitespace and extract just the variable name
+            let cleanField = field.trim();
+
+            // Handle destructuring with renaming: { name: newName } -> name
+            if (cleanField.includes(":")) {
+              cleanField = cleanField.split(":")[0].trim();
+            }
+
+            // Handle destructuring with default values: { name = 'default' } -> name
+            if (cleanField.includes("=")) {
+              cleanField = cleanField.split("=")[0].trim();
+            }
+
+            return cleanField;
+          })
+          .filter((field) => {
+            // Only keep valid JavaScript identifiers and exclude comments
+            const isValid =
+              field &&
+              !field.includes("//") &&
+              !field.includes("/*") &&
+              /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(field);
+
+            if (field) {
+              console.log(
+                `🔍 Field "${field}" is ${isValid ? "valid" : "invalid"}`
+              );
+            }
+            return isValid;
+          });
+
+        console.log(`✅ Extracted fields:`, fields);
         extractedFields = extractedFields.concat(fields);
       }
     }
