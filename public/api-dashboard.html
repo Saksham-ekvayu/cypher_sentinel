@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Dashboard | Cyber Terminal</title>
+    <title>API Dashboard | Cypher Sentinel Terminal</title>
     <style>
         :root {
             --bg-primary: #0a0a0a;
@@ -521,6 +521,72 @@
             margin-left: auto;
         }
 
+        /* URL Parameters Styles */
+        .url-params {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .param-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .param-label {
+            color: var(--neon-blue);
+            font-weight: bold;
+            min-width: 60px;
+            font-size: 0.9rem;
+        }
+
+        .param-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .param-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .query-params {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .query-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        .param-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
 
             .table-header,
@@ -544,7 +610,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">⚡ CYBER API TERMINAL ⚡</h1>
+            <h1 class="title">⚡ CYPHER SENTINAL API TERMINAL ⚡</h1>
             <p class="subtitle">Backend API Control Dashboard</p>
         </div>
 
@@ -756,12 +822,33 @@
                         
                         <div id="test-${uniqueId}" class="tab-content active">
                             <div class="api-tester">
+                                ${!api.path.includes('/auth/') ? `
                                 <div class="test-section">
                                     <h4>🔑 Authentication</h4>
                                     <div class="auth-input">
                                         <input type="text" placeholder="Bearer token (optional)" class="auth-token" id="auth-${uniqueId}" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" onfocus="event.stopPropagation()">
                                     </div>
                                 </div>
+                                ` : ''}
+                                
+                                ${api.path.includes(':') ? `
+                                <div class="test-section">
+                                    <h4>🔗 URL Parameters</h4>
+                                    <div class="url-params" id="params-${uniqueId}">
+                                        ${generateUrlParamInputs(api.path, uniqueId)}
+                                    </div>
+                                </div>
+                                ` : ''}
+                                
+                                ${method === 'GET' ? `
+                                <div class="test-section">
+                                    <h4>❓ Query Parameters (Optional)</h4>
+                                    <div class="query-params">
+                                        <input type="text" placeholder="page=1&limit=10&sort=name" class="query-input" id="query-${uniqueId}" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()" onfocus="event.stopPropagation()">
+                                        <small class="param-hint">Format: key1=value1&key2=value2 (for filtering, pagination, sorting)</small>
+                                    </div>
+                                </div>
+                                ` : ''}
                                 
                                 ${(method === 'POST' || method === 'PUT') ? `
                                 <div class="test-section">
@@ -803,10 +890,26 @@
             `;
         }
 
-        // Copy endpoint function
-        async function copyEndpoint(path, button) {
-            const success = await copyToClipboard(path);
-            showCopyFeedback(button, success);
+        // Generate URL parameter input fields
+        function generateUrlParamInputs(path, uniqueId) {
+            const paramMatches = path.match(/:(\w+)/g);
+            if (!paramMatches) return '';
+
+            return paramMatches.map(param => {
+                const paramName = param.substring(1); // Remove the ':'
+                return `
+                    <div class="param-input-group">
+                        <label class="param-label">${paramName}:</label>
+                        <input type="text" 
+                               class="param-input" 
+                               id="param-${paramName}-${uniqueId}" 
+                               placeholder="Enter ${paramName}" 
+                               onclick="event.stopPropagation()" 
+                               onkeydown="event.stopPropagation()" 
+                               onfocus="event.stopPropagation()">
+                    </div>
+                `;
+            }).join('');
         }
 
         // Copy code block content
@@ -891,13 +994,48 @@
         async function testAPI(path, method, uniqueId) {
             const button = document.querySelector(`button[onclick*="testAPI('${path}', '${method}', '${uniqueId}')"]`);
             const responseContainer = document.getElementById(`response-${uniqueId}`);
-            const authToken = document.getElementById(`auth-${uniqueId}`).value.trim();
+
+            // Get auth token only if the field exists (not for auth APIs)
+            const authTokenField = document.getElementById(`auth-${uniqueId}`);
+            const authToken = authTokenField ? authTokenField.value.trim() : '';
+
+            // Build the actual URL with parameters
+            let actualUrl = path;
+
+            // Replace URL parameters (e.g., :id with actual values)
+            const paramMatches = path.match(/:(\w+)/g);
+            if (paramMatches) {
+                for (const param of paramMatches) {
+                    const paramName = param.substring(1); // Remove the ':'
+                    const paramInput = document.getElementById(`param-${paramName}-${uniqueId}`);
+                    const paramValue = paramInput ? paramInput.value.trim() : '';
+
+                    if (!paramValue) {
+                        showResponse(responseContainer, {
+                            status: 'Error',
+                            statusCode: 400,
+                            error: `Missing required parameter: ${paramName}`,
+                            details: `Please provide a value for ${paramName}`
+                        }, 0, 'error');
+                        return;
+                    }
+
+                    actualUrl = actualUrl.replace(param, paramValue);
+                }
+            }
+
+            // Add query parameters
+            const queryInput = document.getElementById(`query-${uniqueId}`);
+            const queryString = queryInput ? queryInput.value.trim() : '';
+            if (queryString) {
+                actualUrl += (actualUrl.includes('?') ? '&' : '?') + queryString;
+            }
 
             // Get request body for POST/PUT requests
             let requestBody = null;
             if (method === 'POST' || method === 'PUT') {
                 const bodyEditor = document.getElementById(`body-${uniqueId}`);
-                const bodyText = bodyEditor.value.trim();
+                const bodyText = bodyEditor ? bodyEditor.value.trim() : '';
 
                 if (bodyText) {
                     try {
@@ -943,8 +1081,9 @@
                     requestOptions.body = JSON.stringify(requestBody);
                 }
 
-                // Make the API request
-                const response = await fetch(path, requestOptions);
+                // Make the API request with the actual URL
+                console.log(`🚀 Testing API: ${method} ${actualUrl}`);
+                const response = await fetch(actualUrl, requestOptions);
                 const responseTime = Date.now() - startTime;
 
                 // Parse response
