@@ -1293,7 +1293,7 @@
                 }
 
                 // Make the API request with the actual URL
-                console.log(`🚀 Testing API: ${method} ${actualUrl}`);
+                // console.log(`🚀 Testing API: ${method} ${actualUrl}`);
                 const response = await fetch(actualUrl, requestOptions);
                 const responseTime = Date.now() - startTime;
 
@@ -1523,7 +1523,7 @@
             // Clear the input
             tokenInput.value = '';
 
-            console.log('✅ Token saved globally');
+            // console.log('✅ Token saved globally');
         }
 
         function clearGlobalToken() {
@@ -1537,7 +1537,7 @@
             // Clear the input
             document.getElementById('global-token').value = '';
 
-            console.log('🗑️ Global token cleared');
+            // console.log('🗑️ Global token cleared');
         }
 
         function copySavedToken() {
@@ -1635,7 +1635,7 @@
 
                         // Show notification
                         showTokenNotification('🎉 Token auto-saved from login response!');
-                        console.log('🎉 Auto-saved token from response:', field);
+                        // console.log('🎉 Auto-saved token from response:', field);
                         return true;
                     }
                 }

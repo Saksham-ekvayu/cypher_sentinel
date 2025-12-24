@@ -25,10 +25,10 @@ const discoverControllerFiles = () => {
       }
     });
 
-    console.log(
-      "🔍 Auto-discovered controllers:",
-      Object.keys(controllerFiles)
-    );
+    // console.log(
+    //   "🔍 Auto-discovered controllers:",
+    //   Object.keys(controllerFiles)
+    // );
     return controllerFiles;
   } catch (error) {
     console.error("Error discovering controller files:", error);
@@ -187,9 +187,9 @@ const findMatchingFunction = (routePath, method, availableFunctions) => {
     });
 
     if (found) {
-      console.log(
-        `🎯 Matched ${routePath} ${method} -> ${found} (pattern: ${pattern})`
-      );
+      // console.log(
+      //   `🎯 Matched ${routePath} ${method} -> ${found} (pattern: ${pattern})`
+      // );
       return found;
     }
   }
@@ -234,10 +234,10 @@ const extractRequestBodyFromController = (routePath, method) => {
     );
 
     if (!functionName) {
-      console.log(
-        `❌ No function found for ${method} ${routePath}. Available functions:`,
-        availableFunctions
-      );
+      // console.log(
+      //   `❌ No function found for ${method} ${routePath}. Available functions:`,
+      //   availableFunctions
+      // );
       return null;
     }
 
@@ -276,17 +276,17 @@ const extractRequestBodyFromController = (routePath, method) => {
       const match = pattern.exec(controllerContent);
       if (match) {
         functionBody = match[1];
-        console.log(
-          `✅ Found function '${functionName}' for ${method} ${routePath}`
-        );
+        // console.log(
+        //   `✅ Found function '${functionName}' for ${method} ${routePath}`
+        // );
         break;
       }
     }
 
     if (!functionBody) {
-      console.log(
-        `❌ Function '${functionName}' not found in controller for ${method} ${routePath}`
-      );
+      // console.log(
+      //   `❌ Function '${functionName}' not found in controller for ${method} ${routePath}`
+      // );
       return null;
     }
 
@@ -302,7 +302,7 @@ const extractRequestBodyFromController = (routePath, method) => {
       let match;
       while ((match = pattern.exec(functionBody)) !== null) {
         const fieldsString = match[1];
-        console.log(`🔍 Raw destructuring match: "${fieldsString}"`);
+        // console.log(`🔍 Raw destructuring match: "${fieldsString}"`);
 
         // Split by comma and clean each field
         const fields = fieldsString
@@ -332,14 +332,14 @@ const extractRequestBodyFromController = (routePath, method) => {
               /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(field);
 
             if (field) {
-              console.log(
-                `🔍 Field "${field}" is ${isValid ? "valid" : "invalid"}`
-              );
+              // console.log(
+              //   `🔍 Field "${field}" is ${isValid ? "valid" : "invalid"}`
+              // );
             }
             return isValid;
           });
 
-        console.log(`✅ Extracted fields:`, fields);
+        // console.log(`✅ Extracted fields:`, fields);
         extractedFields = extractedFields.concat(fields);
       }
     }
@@ -361,10 +361,10 @@ const extractRequestBodyFromController = (routePath, method) => {
       schema[field] = isOptional ? "string (optional)" : "string";
     });
 
-    console.log(
-      `✅ Auto-extracted schema for ${method} ${routePath} -> ${functionName}:`,
-      schema
-    );
+    // console.log(
+    //   `✅ Auto-extracted schema for ${method} ${routePath} -> ${functionName}:`,
+    //   schema
+    // );
     return schema;
   } catch (error) {
     console.error("Error extracting request body schema:", error);
@@ -387,9 +387,9 @@ const getRequestBodySchema = (path, method) => {
     return null; // Expected - these methods don't typically have request bodies
   }
 
-  console.log(
-    `ℹ️ No request body schema detected for ${method} ${path} - endpoint may not use req.body`
-  );
+  // console.log(
+  //   `ℹ️ No request body schema detected for ${method} ${path} - endpoint may not use req.body`
+  // );
   return null;
 };
 
